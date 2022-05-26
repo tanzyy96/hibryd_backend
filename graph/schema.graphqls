@@ -1,0 +1,173 @@
+# GraphQL schema example
+#
+# https://gqlgen.com/getting-started/
+
+# type Todo {
+#   id: ID!
+#   text: String!
+#   done: Boolean!
+#   user: User!
+# }
+
+# type User {
+#   id: ID!
+#   name: String!
+# }
+
+# type Query {
+#   todos: [Todo!]!
+# }
+
+# input NewTodo {
+#   text: String!
+#   userId: String!
+# }
+
+# type Mutation {
+#   createTodo(input: NewTodo!): Todo!
+# }
+
+scalar Time
+
+enum TaskStatus {
+	COMPLETED
+	INCOMPLETE
+	PUSHED
+	CANCELLED
+}
+
+enum RemoteStatus {
+	HOME
+	OFFICE
+	UNAVAILABLE
+	LEAVE
+	MEDICAL
+	NONE
+}
+
+enum ChannelType {
+	VOTING
+	MESSAGING
+}
+
+type Company {
+	id: Int!
+	name: String!
+}
+
+type User {
+	id: ID!
+	username: String!
+	created_at: Time!
+	birthdate: Time!
+	qotw: String
+	updated_at: Time!
+	joined_at: Time!
+	company_id: Int!
+	profile_pic_s3_key: String
+}
+
+type WeekStatus {
+	id: ID!
+	user_id: ID!
+	start_date: Time!
+	end_date: Time!
+}
+
+type DayStatus {
+	id: Int!
+	day_index: Int!
+	date: Time!
+	status: RemoteStatus
+}
+
+type DayTasks {
+	id: Int!
+	user_id: ID!
+	datetime: Time!
+}
+
+type Task {
+	id: Int!
+	daytasks_id: Int!
+	description: String!
+	status: TaskStatus
+}
+
+type Event {
+	id: Int!
+	datetime: Time!
+	name: String!
+	description: String
+}
+
+type EventImage {
+	id: Int!
+	image_s3_key: String!
+	loves: Int!
+	comments: Int!
+	event_id: Int!
+}
+
+type Channel {
+	id: Int!
+	type: ChannelType
+	name: String!
+	expiry_date: Time
+}
+
+type ChannelParticipants {
+	user_id: String!
+	channel_id: Int!
+}
+
+type Message {
+	id: Int!
+	sender_id: String!
+	text: String
+	image_s3_key: String
+	reply_to: String
+	channel_id: Int!
+}
+
+type Poll {
+	id: Int!
+	expiry_date: Time!
+	channel_id: Int!
+}
+
+type PollOption {
+	id: Int!
+	description: String!
+	added_by: String!
+	count: Int!
+	poll_id: Int!
+}
+
+type PollOptionVote {
+	id: Int!
+	voted_by: String!
+	voted_at: Time!
+	poll_option_id: Int!
+}
+
+type Query {
+	user(id: ID!): User
+	users: [User!]!
+}
+
+input NewCompany {
+	name: String!
+}
+
+input NewUser {
+	username: String!
+	birthdate: Time!
+	joined_at: Time!
+	company_id: Int!
+}
+
+type Mutation {
+	createCompany(input: NewCompany!): Company!
+	createUser(input: NewUser!): User!
+}
