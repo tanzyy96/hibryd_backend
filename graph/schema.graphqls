@@ -1,33 +1,5 @@
-# GraphQL schema example
-#
-# https://gqlgen.com/getting-started/
-
-# type Todo {
-#   id: ID!
-#   text: String!
-#   done: Boolean!
-#   user: User!
-# }
-
-# type User {
-#   id: ID!
-#   name: String!
-# }
-
-# type Query {
-#   todos: [Todo!]!
-# }
-
-# input NewTodo {
-#   text: String!
-#   userId: String!
-# }
-
-# type Mutation {
-#   createTodo(input: NewTodo!): Todo!
-# }
-
 scalar Time
+# TODO: disable passing time as param
 
 enum TaskStatus {
 	COMPLETED
@@ -58,6 +30,8 @@ type Company {
 type User {
 	id: ID!
 	username: String!
+	last_name: String!
+	first_name: String!
 	created_at: Time!
 	birthdate: Time!
 	qotw: String
@@ -78,6 +52,7 @@ type DayStatus {
 	id: Int!
 	day_index: Int!
 	date: Time!
+	week_status_id: ID!
 	status: RemoteStatus
 }
 
@@ -151,23 +126,86 @@ type PollOptionVote {
 	poll_option_id: Int!
 }
 
+## QUERY
 type Query {
 	user(id: ID!): User
 	users: [User!]!
 }
 
+## MUTATION
 input NewCompany {
 	name: String!
 }
 
 input NewUser {
 	username: String!
-	birthdate: Time!
-	joined_at: Time!
+	last_name: String!
+	first_name: String!
+	birthdate: String!
+	joined_at: String!
 	company_id: Int!
+}
+
+input NewTask {
+	description: String!
+	status: TaskStatus
+}
+
+input NewDayTasks {
+	user_id: ID!
+	datetime: String!
+	tasks: [NewTask!]!
+}
+
+input NewWeekTasks {
+	user_id: ID!
+	start_date: String!
+	end_date: String!
+	tasks: [NewTask!]!
+}
+
+input NewDayStatus {
+	day_index: Int!
+	status: RemoteStatus!
+}
+
+input NewWeekStatus {
+	user_id: ID!
+	start_date: String!
+	end_date: String!
+	statuses: [NewDayStatus!]!
+}
+
+input UpdateDayTasks {
+	id: Int!
+	tasks: [UpdateTask!]!
+}
+
+input UpdateTask {
+	id: Int!
+	description: String
+	status: TaskStatus
+}
+
+input UpdateWeekStatus {
+	id: Int!
+	statuses: [UpdateDayStatus!]!
+}
+
+input UpdateDayStatus {
+	id: Int!
+	status: RemoteStatus
 }
 
 type Mutation {
 	createCompany(input: NewCompany!): Company!
 	createUser(input: NewUser!): User!
+	createDayTasks(input: NewDayTasks!): [Task]!
+	createWeekTasks(input: NewWeekTasks!): [DayTasks]!
+	createWeekStatus(input: NewWeekStatus!): [DayStatus!]!
+
+	updateDayTasks(input: UpdateDayTasks!): [Task!]!
+	updateTask(input: UpdateTask!): Task!
+	updateDayStatus(input: UpdateDayStatus!): DayStatus!
+	updateWeekStatus(input: UpdateWeekStatus!): [DayStatus!]!
 }

@@ -27,10 +27,11 @@ type Company struct {
 }
 
 type DayStatus struct {
-	ID       int           `json:"id"`
-	DayIndex int           `json:"day_index"`
-	Date     time.Time     `json:"date"`
-	Status   *RemoteStatus `json:"status"`
+	ID           int           `json:"id"`
+	DayIndex     int           `json:"day_index"`
+	Date         time.Time     `json:"date"`
+	WeekStatusID string        `json:"week_status_id"`
+	Status       *RemoteStatus `json:"status"`
 }
 
 type DayTasks struct {
@@ -67,11 +68,43 @@ type NewCompany struct {
 	Name string `json:"name"`
 }
 
+type NewDayStatus struct {
+	DayIndex int          `json:"day_index"`
+	Status   RemoteStatus `json:"status"`
+}
+
+type NewDayTasks struct {
+	UserID   string     `json:"user_id"`
+	Datetime string     `json:"datetime"`
+	Tasks    []*NewTask `json:"tasks"`
+}
+
+type NewTask struct {
+	Description string      `json:"description"`
+	Status      *TaskStatus `json:"status"`
+}
+
 type NewUser struct {
-	Username  string    `json:"username"`
-	Birthdate time.Time `json:"birthdate"`
-	JoinedAt  time.Time `json:"joined_at"`
-	CompanyID int       `json:"company_id"`
+	Username  string `json:"username"`
+	LastName  string `json:"last_name"`
+	FirstName string `json:"first_name"`
+	Birthdate string `json:"birthdate"`
+	JoinedAt  string `json:"joined_at"`
+	CompanyID int    `json:"company_id"`
+}
+
+type NewWeekStatus struct {
+	UserID    string          `json:"user_id"`
+	StartDate string          `json:"start_date"`
+	EndDate   string          `json:"end_date"`
+	Statuses  []*NewDayStatus `json:"statuses"`
+}
+
+type NewWeekTasks struct {
+	UserID    string     `json:"user_id"`
+	StartDate string     `json:"start_date"`
+	EndDate   string     `json:"end_date"`
+	Tasks     []*NewTask `json:"tasks"`
 }
 
 type Poll struct {
@@ -102,9 +135,32 @@ type Task struct {
 	Status      *TaskStatus `json:"status"`
 }
 
+type UpdateDayStatus struct {
+	ID     int           `json:"id"`
+	Status *RemoteStatus `json:"status"`
+}
+
+type UpdateDayTasks struct {
+	ID    int           `json:"id"`
+	Tasks []*UpdateTask `json:"tasks"`
+}
+
+type UpdateTask struct {
+	ID          int         `json:"id"`
+	Description *string     `json:"description"`
+	Status      *TaskStatus `json:"status"`
+}
+
+type UpdateWeekStatus struct {
+	ID       int                `json:"id"`
+	Statuses []*UpdateDayStatus `json:"statuses"`
+}
+
 type User struct {
 	ID              string    `json:"id"`
 	Username        string    `json:"username"`
+	LastName        string    `json:"last_name"`
+	FirstName       string    `json:"first_name"`
 	CreatedAt       time.Time `json:"created_at"`
 	Birthdate       time.Time `json:"birthdate"`
 	Qotw            *string   `json:"qotw"`

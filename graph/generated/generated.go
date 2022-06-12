@@ -63,10 +63,11 @@ type ComplexityRoot struct {
 	}
 
 	DayStatus struct {
-		Date     func(childComplexity int) int
-		DayIndex func(childComplexity int) int
-		ID       func(childComplexity int) int
-		Status   func(childComplexity int) int
+		Date         func(childComplexity int) int
+		DayIndex     func(childComplexity int) int
+		ID           func(childComplexity int) int
+		Status       func(childComplexity int) int
+		WeekStatusID func(childComplexity int) int
 	}
 
 	DayTasks struct {
@@ -100,8 +101,15 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		CreateCompany func(childComplexity int, input model.NewCompany) int
-		CreateUser    func(childComplexity int, input model.NewUser) int
+		CreateCompany    func(childComplexity int, input model.NewCompany) int
+		CreateDayTasks   func(childComplexity int, input model.NewDayTasks) int
+		CreateUser       func(childComplexity int, input model.NewUser) int
+		CreateWeekStatus func(childComplexity int, input model.NewWeekStatus) int
+		CreateWeekTasks  func(childComplexity int, input model.NewWeekTasks) int
+		UpdateDayStatus  func(childComplexity int, input model.UpdateDayStatus) int
+		UpdateDayTasks   func(childComplexity int, input model.UpdateDayTasks) int
+		UpdateTask       func(childComplexity int, input model.UpdateTask) int
+		UpdateWeekStatus func(childComplexity int, input model.UpdateWeekStatus) int
 	}
 
 	Poll struct {
@@ -141,8 +149,10 @@ type ComplexityRoot struct {
 		Birthdate       func(childComplexity int) int
 		CompanyID       func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
+		FirstName       func(childComplexity int) int
 		ID              func(childComplexity int) int
 		JoinedAt        func(childComplexity int) int
+		LastName        func(childComplexity int) int
 		ProfilePicS3Key func(childComplexity int) int
 		Qotw            func(childComplexity int) int
 		UpdatedAt       func(childComplexity int) int
@@ -160,6 +170,13 @@ type ComplexityRoot struct {
 type MutationResolver interface {
 	CreateCompany(ctx context.Context, input model.NewCompany) (*model.Company, error)
 	CreateUser(ctx context.Context, input model.NewUser) (*model.User, error)
+	CreateDayTasks(ctx context.Context, input model.NewDayTasks) ([]*model.Task, error)
+	CreateWeekTasks(ctx context.Context, input model.NewWeekTasks) ([]*model.DayTasks, error)
+	CreateWeekStatus(ctx context.Context, input model.NewWeekStatus) ([]*model.DayStatus, error)
+	UpdateDayTasks(ctx context.Context, input model.UpdateDayTasks) ([]*model.Task, error)
+	UpdateTask(ctx context.Context, input model.UpdateTask) (*model.Task, error)
+	UpdateDayStatus(ctx context.Context, input model.UpdateDayStatus) (*model.DayStatus, error)
+	UpdateWeekStatus(ctx context.Context, input model.UpdateWeekStatus) ([]*model.DayStatus, error)
 }
 type QueryResolver interface {
 	User(ctx context.Context, id string) (*model.User, error)
@@ -264,6 +281,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.DayStatus.Status(childComplexity), true
+
+	case "DayStatus.week_status_id":
+		if e.complexity.DayStatus.WeekStatusID == nil {
+			break
+		}
+
+		return e.complexity.DayStatus.WeekStatusID(childComplexity), true
 
 	case "DayTasks.datetime":
 		if e.complexity.DayTasks.Datetime == nil {
@@ -403,6 +427,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.CreateCompany(childComplexity, args["input"].(model.NewCompany)), true
 
+	case "Mutation.createDayTasks":
+		if e.complexity.Mutation.CreateDayTasks == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createDayTasks_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateDayTasks(childComplexity, args["input"].(model.NewDayTasks)), true
+
 	case "Mutation.createUser":
 		if e.complexity.Mutation.CreateUser == nil {
 			break
@@ -414,6 +450,78 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.CreateUser(childComplexity, args["input"].(model.NewUser)), true
+
+	case "Mutation.createWeekStatus":
+		if e.complexity.Mutation.CreateWeekStatus == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createWeekStatus_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateWeekStatus(childComplexity, args["input"].(model.NewWeekStatus)), true
+
+	case "Mutation.createWeekTasks":
+		if e.complexity.Mutation.CreateWeekTasks == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createWeekTasks_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateWeekTasks(childComplexity, args["input"].(model.NewWeekTasks)), true
+
+	case "Mutation.updateDayStatus":
+		if e.complexity.Mutation.UpdateDayStatus == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateDayStatus_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateDayStatus(childComplexity, args["input"].(model.UpdateDayStatus)), true
+
+	case "Mutation.updateDayTasks":
+		if e.complexity.Mutation.UpdateDayTasks == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateDayTasks_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateDayTasks(childComplexity, args["input"].(model.UpdateDayTasks)), true
+
+	case "Mutation.updateTask":
+		if e.complexity.Mutation.UpdateTask == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateTask_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateTask(childComplexity, args["input"].(model.UpdateTask)), true
+
+	case "Mutation.updateWeekStatus":
+		if e.complexity.Mutation.UpdateWeekStatus == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateWeekStatus_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateWeekStatus(childComplexity, args["input"].(model.UpdateWeekStatus)), true
 
 	case "Poll.channel_id":
 		if e.complexity.Poll.ChannelID == nil {
@@ -567,6 +675,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.User.CreatedAt(childComplexity), true
 
+	case "User.first_name":
+		if e.complexity.User.FirstName == nil {
+			break
+		}
+
+		return e.complexity.User.FirstName(childComplexity), true
+
 	case "User.id":
 		if e.complexity.User.ID == nil {
 			break
@@ -580,6 +695,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.User.JoinedAt(childComplexity), true
+
+	case "User.last_name":
+		if e.complexity.User.LastName == nil {
+			break
+		}
+
+		return e.complexity.User.LastName(childComplexity), true
 
 	case "User.profile_pic_s3_key":
 		if e.complexity.User.ProfilePicS3Key == nil {
@@ -646,7 +768,16 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	ec := executionContext{rc, e}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputNewCompany,
+		ec.unmarshalInputNewDayStatus,
+		ec.unmarshalInputNewDayTasks,
+		ec.unmarshalInputNewTask,
 		ec.unmarshalInputNewUser,
+		ec.unmarshalInputNewWeekStatus,
+		ec.unmarshalInputNewWeekTasks,
+		ec.unmarshalInputUpdateDayStatus,
+		ec.unmarshalInputUpdateDayTasks,
+		ec.unmarshalInputUpdateTask,
+		ec.unmarshalInputUpdateWeekStatus,
 	)
 	first := true
 
@@ -707,36 +838,8 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
-	{Name: "graph/schema.graphqls", Input: `# GraphQL schema example
-#
-# https://gqlgen.com/getting-started/
-
-# type Todo {
-#   id: ID!
-#   text: String!
-#   done: Boolean!
-#   user: User!
-# }
-
-# type User {
-#   id: ID!
-#   name: String!
-# }
-
-# type Query {
-#   todos: [Todo!]!
-# }
-
-# input NewTodo {
-#   text: String!
-#   userId: String!
-# }
-
-# type Mutation {
-#   createTodo(input: NewTodo!): Todo!
-# }
-
-scalar Time
+	{Name: "graph/schema.graphqls", Input: `scalar Time
+# TODO: disable passing time as param
 
 enum TaskStatus {
 	COMPLETED
@@ -767,6 +870,8 @@ type Company {
 type User {
 	id: ID!
 	username: String!
+	last_name: String!
+	first_name: String!
 	created_at: Time!
 	birthdate: Time!
 	qotw: String
@@ -787,6 +892,7 @@ type DayStatus {
 	id: Int!
 	day_index: Int!
 	date: Time!
+	week_status_id: ID!
 	status: RemoteStatus
 }
 
@@ -860,25 +966,88 @@ type PollOptionVote {
 	poll_option_id: Int!
 }
 
+## QUERY
 type Query {
 	user(id: ID!): User
 	users: [User!]!
 }
 
+## MUTATION
 input NewCompany {
 	name: String!
 }
 
 input NewUser {
 	username: String!
-	birthdate: Time!
-	joined_at: Time!
+	last_name: String!
+	first_name: String!
+	birthdate: String!
+	joined_at: String!
 	company_id: Int!
+}
+
+input NewTask {
+	description: String!
+	status: TaskStatus
+}
+
+input NewDayTasks {
+	user_id: ID!
+	datetime: String!
+	tasks: [NewTask!]!
+}
+
+input NewWeekTasks {
+	user_id: ID!
+	start_date: String!
+	end_date: String!
+	tasks: [NewTask!]!
+}
+
+input NewDayStatus {
+	day_index: Int!
+	status: RemoteStatus!
+}
+
+input NewWeekStatus {
+	user_id: ID!
+	start_date: String!
+	end_date: String!
+	statuses: [NewDayStatus!]!
+}
+
+input UpdateDayTasks {
+	id: Int!
+	tasks: [UpdateTask!]!
+}
+
+input UpdateTask {
+	id: Int!
+	description: String
+	status: TaskStatus
+}
+
+input UpdateWeekStatus {
+	id: Int!
+	statuses: [UpdateDayStatus!]!
+}
+
+input UpdateDayStatus {
+	id: Int!
+	status: RemoteStatus
 }
 
 type Mutation {
 	createCompany(input: NewCompany!): Company!
 	createUser(input: NewUser!): User!
+	createDayTasks(input: NewDayTasks!): [Task]!
+	createWeekTasks(input: NewWeekTasks!): [DayTasks]!
+	createWeekStatus(input: NewWeekStatus!): [DayStatus!]!
+
+	updateDayTasks(input: UpdateDayTasks!): [Task!]!
+	updateTask(input: UpdateTask!): Task!
+	updateDayStatus(input: UpdateDayStatus!): DayStatus!
+	updateWeekStatus(input: UpdateWeekStatus!): [DayStatus!]!
 }
 `, BuiltIn: false},
 }
@@ -903,6 +1072,21 @@ func (ec *executionContext) field_Mutation_createCompany_args(ctx context.Contex
 	return args, nil
 }
 
+func (ec *executionContext) field_Mutation_createDayTasks_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.NewDayTasks
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNNewDayTasks2hibryd_backendᚋgraphᚋmodelᚐNewDayTasks(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Mutation_createUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -910,6 +1094,96 @@ func (ec *executionContext) field_Mutation_createUser_args(ctx context.Context, 
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNNewUser2hibryd_backendᚋgraphᚋmodelᚐNewUser(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_createWeekStatus_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.NewWeekStatus
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNNewWeekStatus2hibryd_backendᚋgraphᚋmodelᚐNewWeekStatus(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_createWeekTasks_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.NewWeekTasks
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNNewWeekTasks2hibryd_backendᚋgraphᚋmodelᚐNewWeekTasks(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_updateDayStatus_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.UpdateDayStatus
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNUpdateDayStatus2hibryd_backendᚋgraphᚋmodelᚐUpdateDayStatus(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_updateDayTasks_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.UpdateDayTasks
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNUpdateDayTasks2hibryd_backendᚋgraphᚋmodelᚐUpdateDayTasks(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_updateTask_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.UpdateTask
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNUpdateTask2hibryd_backendᚋgraphᚋmodelᚐUpdateTask(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_updateWeekStatus_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.UpdateWeekStatus
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNUpdateWeekStatus2hibryd_backendᚋgraphᚋmodelᚐUpdateWeekStatus(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -1459,6 +1733,50 @@ func (ec *executionContext) fieldContext_DayStatus_date(ctx context.Context, fie
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _DayStatus_week_status_id(ctx context.Context, field graphql.CollectedField, obj *model.DayStatus) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DayStatus_week_status_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.WeekStatusID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_DayStatus_week_status_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DayStatus",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	return fc, nil
@@ -2389,6 +2707,10 @@ func (ec *executionContext) fieldContext_Mutation_createUser(ctx context.Context
 				return ec.fieldContext_User_id(ctx, field)
 			case "username":
 				return ec.fieldContext_User_username(ctx, field)
+			case "last_name":
+				return ec.fieldContext_User_last_name(ctx, field)
+			case "first_name":
+				return ec.fieldContext_User_first_name(ctx, field)
 			case "created_at":
 				return ec.fieldContext_User_created_at(ctx, field)
 			case "birthdate":
@@ -2415,6 +2737,465 @@ func (ec *executionContext) fieldContext_Mutation_createUser(ctx context.Context
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_createUser_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_createDayTasks(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_createDayTasks(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateDayTasks(rctx, fc.Args["input"].(model.NewDayTasks))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Task)
+	fc.Result = res
+	return ec.marshalNTask2ᚕᚖhibryd_backendᚋgraphᚋmodelᚐTask(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_createDayTasks(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Task_id(ctx, field)
+			case "daytasks_id":
+				return ec.fieldContext_Task_daytasks_id(ctx, field)
+			case "description":
+				return ec.fieldContext_Task_description(ctx, field)
+			case "status":
+				return ec.fieldContext_Task_status(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Task", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_createDayTasks_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_createWeekTasks(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_createWeekTasks(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateWeekTasks(rctx, fc.Args["input"].(model.NewWeekTasks))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.DayTasks)
+	fc.Result = res
+	return ec.marshalNDayTasks2ᚕᚖhibryd_backendᚋgraphᚋmodelᚐDayTasks(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_createWeekTasks(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_DayTasks_id(ctx, field)
+			case "user_id":
+				return ec.fieldContext_DayTasks_user_id(ctx, field)
+			case "datetime":
+				return ec.fieldContext_DayTasks_datetime(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type DayTasks", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_createWeekTasks_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_createWeekStatus(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_createWeekStatus(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateWeekStatus(rctx, fc.Args["input"].(model.NewWeekStatus))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.DayStatus)
+	fc.Result = res
+	return ec.marshalNDayStatus2ᚕᚖhibryd_backendᚋgraphᚋmodelᚐDayStatusᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_createWeekStatus(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_DayStatus_id(ctx, field)
+			case "day_index":
+				return ec.fieldContext_DayStatus_day_index(ctx, field)
+			case "date":
+				return ec.fieldContext_DayStatus_date(ctx, field)
+			case "week_status_id":
+				return ec.fieldContext_DayStatus_week_status_id(ctx, field)
+			case "status":
+				return ec.fieldContext_DayStatus_status(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type DayStatus", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_createWeekStatus_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_updateDayTasks(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_updateDayTasks(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().UpdateDayTasks(rctx, fc.Args["input"].(model.UpdateDayTasks))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Task)
+	fc.Result = res
+	return ec.marshalNTask2ᚕᚖhibryd_backendᚋgraphᚋmodelᚐTaskᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_updateDayTasks(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Task_id(ctx, field)
+			case "daytasks_id":
+				return ec.fieldContext_Task_daytasks_id(ctx, field)
+			case "description":
+				return ec.fieldContext_Task_description(ctx, field)
+			case "status":
+				return ec.fieldContext_Task_status(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Task", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_updateDayTasks_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_updateTask(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_updateTask(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().UpdateTask(rctx, fc.Args["input"].(model.UpdateTask))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Task)
+	fc.Result = res
+	return ec.marshalNTask2ᚖhibryd_backendᚋgraphᚋmodelᚐTask(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_updateTask(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Task_id(ctx, field)
+			case "daytasks_id":
+				return ec.fieldContext_Task_daytasks_id(ctx, field)
+			case "description":
+				return ec.fieldContext_Task_description(ctx, field)
+			case "status":
+				return ec.fieldContext_Task_status(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Task", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_updateTask_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_updateDayStatus(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_updateDayStatus(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().UpdateDayStatus(rctx, fc.Args["input"].(model.UpdateDayStatus))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.DayStatus)
+	fc.Result = res
+	return ec.marshalNDayStatus2ᚖhibryd_backendᚋgraphᚋmodelᚐDayStatus(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_updateDayStatus(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_DayStatus_id(ctx, field)
+			case "day_index":
+				return ec.fieldContext_DayStatus_day_index(ctx, field)
+			case "date":
+				return ec.fieldContext_DayStatus_date(ctx, field)
+			case "week_status_id":
+				return ec.fieldContext_DayStatus_week_status_id(ctx, field)
+			case "status":
+				return ec.fieldContext_DayStatus_status(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type DayStatus", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_updateDayStatus_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_updateWeekStatus(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_updateWeekStatus(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().UpdateWeekStatus(rctx, fc.Args["input"].(model.UpdateWeekStatus))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.DayStatus)
+	fc.Result = res
+	return ec.marshalNDayStatus2ᚕᚖhibryd_backendᚋgraphᚋmodelᚐDayStatusᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_updateWeekStatus(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_DayStatus_id(ctx, field)
+			case "day_index":
+				return ec.fieldContext_DayStatus_day_index(ctx, field)
+			case "date":
+				return ec.fieldContext_DayStatus_date(ctx, field)
+			case "week_status_id":
+				return ec.fieldContext_DayStatus_week_status_id(ctx, field)
+			case "status":
+				return ec.fieldContext_DayStatus_status(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type DayStatus", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_updateWeekStatus_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -2989,6 +3770,10 @@ func (ec *executionContext) fieldContext_Query_user(ctx context.Context, field g
 				return ec.fieldContext_User_id(ctx, field)
 			case "username":
 				return ec.fieldContext_User_username(ctx, field)
+			case "last_name":
+				return ec.fieldContext_User_last_name(ctx, field)
+			case "first_name":
+				return ec.fieldContext_User_first_name(ctx, field)
 			case "created_at":
 				return ec.fieldContext_User_created_at(ctx, field)
 			case "birthdate":
@@ -3064,6 +3849,10 @@ func (ec *executionContext) fieldContext_Query_users(ctx context.Context, field 
 				return ec.fieldContext_User_id(ctx, field)
 			case "username":
 				return ec.fieldContext_User_username(ctx, field)
+			case "last_name":
+				return ec.fieldContext_User_last_name(ctx, field)
+			case "first_name":
+				return ec.fieldContext_User_first_name(ctx, field)
 			case "created_at":
 				return ec.fieldContext_User_created_at(ctx, field)
 			case "birthdate":
@@ -3463,6 +4252,94 @@ func (ec *executionContext) _User_username(ctx context.Context, field graphql.Co
 }
 
 func (ec *executionContext) fieldContext_User_username(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _User_last_name(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_last_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.LastName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_User_last_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _User_first_name(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_first_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.FirstName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_User_first_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "User",
 		Field:      field,
@@ -5749,6 +6626,107 @@ func (ec *executionContext) unmarshalInputNewCompany(ctx context.Context, obj in
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputNewDayStatus(ctx context.Context, obj interface{}) (model.NewDayStatus, error) {
+	var it model.NewDayStatus
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	for k, v := range asMap {
+		switch k {
+		case "day_index":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("day_index"))
+			it.DayIndex, err = ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "status":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("status"))
+			it.Status, err = ec.unmarshalNRemoteStatus2hibryd_backendᚋgraphᚋmodelᚐRemoteStatus(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputNewDayTasks(ctx context.Context, obj interface{}) (model.NewDayTasks, error) {
+	var it model.NewDayTasks
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	for k, v := range asMap {
+		switch k {
+		case "user_id":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("user_id"))
+			it.UserID, err = ec.unmarshalNID2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "datetime":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("datetime"))
+			it.Datetime, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "tasks":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tasks"))
+			it.Tasks, err = ec.unmarshalNNewTask2ᚕᚖhibryd_backendᚋgraphᚋmodelᚐNewTaskᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputNewTask(ctx context.Context, obj interface{}) (model.NewTask, error) {
+	var it model.NewTask
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	for k, v := range asMap {
+		switch k {
+		case "description":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description"))
+			it.Description, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "status":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("status"))
+			it.Status, err = ec.unmarshalOTaskStatus2ᚖhibryd_backendᚋgraphᚋmodelᚐTaskStatus(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputNewUser(ctx context.Context, obj interface{}) (model.NewUser, error) {
 	var it model.NewUser
 	asMap := map[string]interface{}{}
@@ -5766,11 +6744,27 @@ func (ec *executionContext) unmarshalInputNewUser(ctx context.Context, obj inter
 			if err != nil {
 				return it, err
 			}
+		case "last_name":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("last_name"))
+			it.LastName, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "first_name":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("first_name"))
+			it.FirstName, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		case "birthdate":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("birthdate"))
-			it.Birthdate, err = ec.unmarshalNTime2timeᚐTime(ctx, v)
+			it.Birthdate, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -5778,7 +6772,7 @@ func (ec *executionContext) unmarshalInputNewUser(ctx context.Context, obj inter
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("joined_at"))
-			it.JoinedAt, err = ec.unmarshalNTime2timeᚐTime(ctx, v)
+			it.JoinedAt, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -5787,6 +6781,232 @@ func (ec *executionContext) unmarshalInputNewUser(ctx context.Context, obj inter
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("company_id"))
 			it.CompanyID, err = ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputNewWeekStatus(ctx context.Context, obj interface{}) (model.NewWeekStatus, error) {
+	var it model.NewWeekStatus
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	for k, v := range asMap {
+		switch k {
+		case "user_id":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("user_id"))
+			it.UserID, err = ec.unmarshalNID2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "start_date":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("start_date"))
+			it.StartDate, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "end_date":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("end_date"))
+			it.EndDate, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "statuses":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("statuses"))
+			it.Statuses, err = ec.unmarshalNNewDayStatus2ᚕᚖhibryd_backendᚋgraphᚋmodelᚐNewDayStatusᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputNewWeekTasks(ctx context.Context, obj interface{}) (model.NewWeekTasks, error) {
+	var it model.NewWeekTasks
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	for k, v := range asMap {
+		switch k {
+		case "user_id":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("user_id"))
+			it.UserID, err = ec.unmarshalNID2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "start_date":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("start_date"))
+			it.StartDate, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "end_date":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("end_date"))
+			it.EndDate, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "tasks":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tasks"))
+			it.Tasks, err = ec.unmarshalNNewTask2ᚕᚖhibryd_backendᚋgraphᚋmodelᚐNewTaskᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputUpdateDayStatus(ctx context.Context, obj interface{}) (model.UpdateDayStatus, error) {
+	var it model.UpdateDayStatus
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	for k, v := range asMap {
+		switch k {
+		case "id":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			it.ID, err = ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "status":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("status"))
+			it.Status, err = ec.unmarshalORemoteStatus2ᚖhibryd_backendᚋgraphᚋmodelᚐRemoteStatus(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputUpdateDayTasks(ctx context.Context, obj interface{}) (model.UpdateDayTasks, error) {
+	var it model.UpdateDayTasks
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	for k, v := range asMap {
+		switch k {
+		case "id":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			it.ID, err = ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "tasks":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tasks"))
+			it.Tasks, err = ec.unmarshalNUpdateTask2ᚕᚖhibryd_backendᚋgraphᚋmodelᚐUpdateTaskᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputUpdateTask(ctx context.Context, obj interface{}) (model.UpdateTask, error) {
+	var it model.UpdateTask
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	for k, v := range asMap {
+		switch k {
+		case "id":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			it.ID, err = ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "description":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description"))
+			it.Description, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "status":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("status"))
+			it.Status, err = ec.unmarshalOTaskStatus2ᚖhibryd_backendᚋgraphᚋmodelᚐTaskStatus(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputUpdateWeekStatus(ctx context.Context, obj interface{}) (model.UpdateWeekStatus, error) {
+	var it model.UpdateWeekStatus
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	for k, v := range asMap {
+		switch k {
+		case "id":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			it.ID, err = ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "statuses":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("statuses"))
+			it.Statuses, err = ec.unmarshalNUpdateDayStatus2ᚕᚖhibryd_backendᚋgraphᚋmodelᚐUpdateDayStatusᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -5944,6 +7164,13 @@ func (ec *executionContext) _DayStatus(ctx context.Context, sel ast.SelectionSet
 		case "date":
 
 			out.Values[i] = ec._DayStatus_date(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "week_status_id":
+
+			out.Values[i] = ec._DayStatus_week_status_id(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -6193,6 +7420,69 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createUser(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "createDayTasks":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_createDayTasks(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "createWeekTasks":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_createWeekTasks(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "createWeekStatus":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_createWeekStatus(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "updateDayTasks":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_updateDayTasks(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "updateTask":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_updateTask(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "updateDayStatus":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_updateDayStatus(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "updateWeekStatus":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_updateWeekStatus(ctx, field)
 			})
 
 			if out.Values[i] == graphql.Null {
@@ -6507,6 +7797,20 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 		case "username":
 
 			out.Values[i] = ec._User_username(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "last_name":
+
+			out.Values[i] = ec._User_last_name(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "first_name":
+
+			out.Values[i] = ec._User_first_name(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -6961,6 +8265,102 @@ func (ec *executionContext) marshalNCompany2ᚖhibryd_backendᚋgraphᚋmodelᚐ
 	return ec._Company(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNDayStatus2hibryd_backendᚋgraphᚋmodelᚐDayStatus(ctx context.Context, sel ast.SelectionSet, v model.DayStatus) graphql.Marshaler {
+	return ec._DayStatus(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNDayStatus2ᚕᚖhibryd_backendᚋgraphᚋmodelᚐDayStatusᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.DayStatus) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNDayStatus2ᚖhibryd_backendᚋgraphᚋmodelᚐDayStatus(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNDayStatus2ᚖhibryd_backendᚋgraphᚋmodelᚐDayStatus(ctx context.Context, sel ast.SelectionSet, v *model.DayStatus) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._DayStatus(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNDayTasks2ᚕᚖhibryd_backendᚋgraphᚋmodelᚐDayTasks(ctx context.Context, sel ast.SelectionSet, v []*model.DayTasks) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalODayTasks2ᚖhibryd_backendᚋgraphᚋmodelᚐDayTasks(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	return ret
+}
+
 func (ec *executionContext) unmarshalNID2string(ctx context.Context, v interface{}) (string, error) {
 	res, err := graphql.UnmarshalID(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -6996,9 +8396,78 @@ func (ec *executionContext) unmarshalNNewCompany2hibryd_backendᚋgraphᚋmodel�
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalNNewDayStatus2ᚕᚖhibryd_backendᚋgraphᚋmodelᚐNewDayStatusᚄ(ctx context.Context, v interface{}) ([]*model.NewDayStatus, error) {
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*model.NewDayStatus, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNNewDayStatus2ᚖhibryd_backendᚋgraphᚋmodelᚐNewDayStatus(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalNNewDayStatus2ᚖhibryd_backendᚋgraphᚋmodelᚐNewDayStatus(ctx context.Context, v interface{}) (*model.NewDayStatus, error) {
+	res, err := ec.unmarshalInputNewDayStatus(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNNewDayTasks2hibryd_backendᚋgraphᚋmodelᚐNewDayTasks(ctx context.Context, v interface{}) (model.NewDayTasks, error) {
+	res, err := ec.unmarshalInputNewDayTasks(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNNewTask2ᚕᚖhibryd_backendᚋgraphᚋmodelᚐNewTaskᚄ(ctx context.Context, v interface{}) ([]*model.NewTask, error) {
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*model.NewTask, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNNewTask2ᚖhibryd_backendᚋgraphᚋmodelᚐNewTask(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalNNewTask2ᚖhibryd_backendᚋgraphᚋmodelᚐNewTask(ctx context.Context, v interface{}) (*model.NewTask, error) {
+	res, err := ec.unmarshalInputNewTask(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNNewUser2hibryd_backendᚋgraphᚋmodelᚐNewUser(ctx context.Context, v interface{}) (model.NewUser, error) {
 	res, err := ec.unmarshalInputNewUser(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNNewWeekStatus2hibryd_backendᚋgraphᚋmodelᚐNewWeekStatus(ctx context.Context, v interface{}) (model.NewWeekStatus, error) {
+	res, err := ec.unmarshalInputNewWeekStatus(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNNewWeekTasks2hibryd_backendᚋgraphᚋmodelᚐNewWeekTasks(ctx context.Context, v interface{}) (model.NewWeekTasks, error) {
+	res, err := ec.unmarshalInputNewWeekTasks(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNRemoteStatus2hibryd_backendᚋgraphᚋmodelᚐRemoteStatus(ctx context.Context, v interface{}) (model.RemoteStatus, error) {
+	var res model.RemoteStatus
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNRemoteStatus2hibryd_backendᚋgraphᚋmodelᚐRemoteStatus(ctx context.Context, sel ast.SelectionSet, v model.RemoteStatus) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
@@ -7016,6 +8485,102 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 	return res
 }
 
+func (ec *executionContext) marshalNTask2hibryd_backendᚋgraphᚋmodelᚐTask(ctx context.Context, sel ast.SelectionSet, v model.Task) graphql.Marshaler {
+	return ec._Task(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNTask2ᚕᚖhibryd_backendᚋgraphᚋmodelᚐTask(ctx context.Context, sel ast.SelectionSet, v []*model.Task) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOTask2ᚖhibryd_backendᚋgraphᚋmodelᚐTask(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	return ret
+}
+
+func (ec *executionContext) marshalNTask2ᚕᚖhibryd_backendᚋgraphᚋmodelᚐTaskᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Task) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNTask2ᚖhibryd_backendᚋgraphᚋmodelᚐTask(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNTask2ᚖhibryd_backendᚋgraphᚋmodelᚐTask(ctx context.Context, sel ast.SelectionSet, v *model.Task) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Task(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNTime2timeᚐTime(ctx context.Context, v interface{}) (time.Time, error) {
 	res, err := graphql.UnmarshalTime(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -7029,6 +8594,70 @@ func (ec *executionContext) marshalNTime2timeᚐTime(ctx context.Context, sel as
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNUpdateDayStatus2hibryd_backendᚋgraphᚋmodelᚐUpdateDayStatus(ctx context.Context, v interface{}) (model.UpdateDayStatus, error) {
+	res, err := ec.unmarshalInputUpdateDayStatus(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNUpdateDayStatus2ᚕᚖhibryd_backendᚋgraphᚋmodelᚐUpdateDayStatusᚄ(ctx context.Context, v interface{}) ([]*model.UpdateDayStatus, error) {
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*model.UpdateDayStatus, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNUpdateDayStatus2ᚖhibryd_backendᚋgraphᚋmodelᚐUpdateDayStatus(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalNUpdateDayStatus2ᚖhibryd_backendᚋgraphᚋmodelᚐUpdateDayStatus(ctx context.Context, v interface{}) (*model.UpdateDayStatus, error) {
+	res, err := ec.unmarshalInputUpdateDayStatus(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNUpdateDayTasks2hibryd_backendᚋgraphᚋmodelᚐUpdateDayTasks(ctx context.Context, v interface{}) (model.UpdateDayTasks, error) {
+	res, err := ec.unmarshalInputUpdateDayTasks(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNUpdateTask2hibryd_backendᚋgraphᚋmodelᚐUpdateTask(ctx context.Context, v interface{}) (model.UpdateTask, error) {
+	res, err := ec.unmarshalInputUpdateTask(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNUpdateTask2ᚕᚖhibryd_backendᚋgraphᚋmodelᚐUpdateTaskᚄ(ctx context.Context, v interface{}) ([]*model.UpdateTask, error) {
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*model.UpdateTask, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNUpdateTask2ᚖhibryd_backendᚋgraphᚋmodelᚐUpdateTask(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalNUpdateTask2ᚖhibryd_backendᚋgraphᚋmodelᚐUpdateTask(ctx context.Context, v interface{}) (*model.UpdateTask, error) {
+	res, err := ec.unmarshalInputUpdateTask(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNUpdateWeekStatus2hibryd_backendᚋgraphᚋmodelᚐUpdateWeekStatus(ctx context.Context, v interface{}) (model.UpdateWeekStatus, error) {
+	res, err := ec.unmarshalInputUpdateWeekStatus(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalNUser2hibryd_backendᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v model.User) graphql.Marshaler {
@@ -7384,6 +9013,13 @@ func (ec *executionContext) marshalOChannelType2ᚖhibryd_backendᚋgraphᚋmode
 	return v
 }
 
+func (ec *executionContext) marshalODayTasks2ᚖhibryd_backendᚋgraphᚋmodelᚐDayTasks(ctx context.Context, sel ast.SelectionSet, v *model.DayTasks) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._DayTasks(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalORemoteStatus2ᚖhibryd_backendᚋgraphᚋmodelᚐRemoteStatus(ctx context.Context, v interface{}) (*model.RemoteStatus, error) {
 	if v == nil {
 		return nil, nil
@@ -7414,6 +9050,13 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 	}
 	res := graphql.MarshalString(*v)
 	return res
+}
+
+func (ec *executionContext) marshalOTask2ᚖhibryd_backendᚋgraphᚋmodelᚐTask(ctx context.Context, sel ast.SelectionSet, v *model.Task) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Task(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOTaskStatus2ᚖhibryd_backendᚋgraphᚋmodelᚐTaskStatus(ctx context.Context, v interface{}) (*model.TaskStatus, error) {
